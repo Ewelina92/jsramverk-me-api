@@ -4,7 +4,7 @@ const morgan = require('morgan'); // for logging
 const documents = require('./routes/documents');
 
 const app = express();
-const port = process.env.PORT || 1337;
+// const port = process.env.PORT || 1337;
 
 app.use(cors());
 
@@ -48,4 +48,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start up server
-app.listen(port, () => console.log(`Example API listening on port ${port}!`));
+// app.listen(port, () => console.log(`Example API listening on port ${port}!`));
+
+module.exports = app;

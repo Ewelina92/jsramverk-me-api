@@ -1,3 +1,5 @@
+### Travis CI [![Build Status](https://travis-ci.com/Ewelina92/jsramverk-me-api.svg?branch=main)](https://travis-ci.com/Ewelina92/jsramverk-me-api)
+
 # Me-API
 
 This is an API created for the course jsramverk at BTH.
