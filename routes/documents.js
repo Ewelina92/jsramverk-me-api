@@ -1,20 +1,22 @@
 var express = require('express');
-const ObjectId = require('mongodb').ObjectId; 
+const ObjectId = require('mongodb').ObjectId;
 var router = express.Router();
-const database = require("../db/database")
+const database = require("../db/database");
 
 // list all documents: /documents
 router.get("/", async (req, res) => {
     const db = await database.getDb();
     const resultSet = await db.collection.find({}).toArray();
+
     await db.client.close();
-    
+
     res.json(resultSet);
 });
 
 // get one document /:id
 router.get("/:id", async (req, res) => {
     let objectID;
+
     try {
         objectID = new ObjectId(req.params.id);
     } catch (error) {
@@ -22,7 +24,8 @@ router.get("/:id", async (req, res) => {
         return;
     }
     const db = await database.getDb();
-    const resultSet = await db.collection.findOne({_id : objectID});
+    const resultSet = await db.collection.findOne({_id: objectID});
+
     await db.client.close();
 
     if (!resultSet) {
@@ -35,20 +38,22 @@ router.get("/:id", async (req, res) => {
 
 // put / (create new)
 router.put("/", async (req, res) => {
+    // eslint-disable-next-line
     if (!req?.body?.title || !req?.body?.content) {
         res.status(406).send();
         return;
     }
-    
+
     const db = await database.getDb();
     const resultSet = await db.collection.insertOne( // returns _id
         {
-        title: req.body.title,
-        content: req.body.content,
+            title: req.body.title,
+            content: req.body.content,
         }
     );
+
     await db.client.close();
-    
+
     res.status(201).json(resultSet);
 });
 
@@ -60,7 +65,7 @@ router.post("/:id", async (req, res) => {
     }
 
     let objectID;
-    
+
     try {
         objectID = new ObjectId(req.params.id);
     } catch {
@@ -70,7 +75,7 @@ router.post("/:id", async (req, res) => {
 
     const db = await database.getDb();
     const resultSet = await db.collection.updateOne({
-        _id : objectID
+        _id: objectID
     },
     {
         $set: {
@@ -78,6 +83,7 @@ router.post("/:id", async (req, res) => {
             content: req.body.content
         }
     });
+
     await db.client.close();
 
     if (resultSet.matchedCount !== 1) {

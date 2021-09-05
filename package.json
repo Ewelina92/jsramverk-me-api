@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --coverage",
     "start": "nodemon server.js",
-    "production": "NODE_ENV='production' node server.js"
+    "production": "NODE_ENV='production' node server.js",
+    "eslint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -15,9 +16,13 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^4.1.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "optional-require": "^1.1.7"
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-plugin-jest": "^24.4.0",
+    "javascript-style-guide": "^1.0.1",
     "jest": "^27.1.0",
     "nodemon": "^2.0.12",
     "supertest": "^6.1.6"

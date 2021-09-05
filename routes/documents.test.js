@@ -17,9 +17,10 @@ beforeEach(async () => {
             title: "Title two",
             content: "Content two"
         }
-    ]
+    ];
 
     const db = await database.getDb();
+
     await db.collection.deleteMany();
     //await col.deleteMany();
     await db.collection.insertMany(data);

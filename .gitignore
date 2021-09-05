@@ -4,3 +4,4 @@ routes/hello.js
 routes/index.js
 routes/user.js
 src/
+coverage/

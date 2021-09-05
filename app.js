@@ -9,8 +9,8 @@ const app = express();
 app.use(cors());
 
 // enable reading req.body from PUT and POST requests
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // don't show the log when it is test
 if (process.env.NODE_ENV !== 'test') {
@@ -26,6 +26,7 @@ app.use('/documents', documents);
 // Put this last
 app.use((req, res, next) => {
     var err = new Error("Not Found");
+
     err.status = 404;
     next(err);
 });
@@ -35,7 +36,7 @@ app.use((err, req, res, next) => {
     if (res.headersSent) {
         return next(err);
     }
-    
+
     res.status(err.status || 500).json({
         "errors": [
             {
