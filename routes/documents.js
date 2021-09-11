@@ -54,7 +54,11 @@ router.put("/", async (req, res) => {
 
     await db.client.close();
 
-    res.status(201).json(resultSet);
+    console.log(resultSet.insertedId);
+
+    res.status(201).json({
+        documentID: resultSet.insertedId,
+    });
 });
 
 // post /:id (update existing)
