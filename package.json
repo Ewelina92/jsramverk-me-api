@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pretest": "sudo service mongodb start",
     "test": "jest --coverage",
     "start": "nodemon server.js",
     "production": "NODE_ENV='production' node server.js",
