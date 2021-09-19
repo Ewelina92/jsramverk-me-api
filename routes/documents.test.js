@@ -1,8 +1,12 @@
 process.env.NODE_ENV = 'test';
 const request = require("supertest");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const ObjectId = require('mongodb').ObjectId;
 const database = require("../db/database");
 const app = require("../app");
+
+let token;
 
 beforeEach(async () => {
     // populate db
@@ -10,20 +14,33 @@ beforeEach(async () => {
         {
             _id: new ObjectId("612e273fd2455c204e6bcf7c"),
             title: "Title one",
-            content: "Content one"
+            content: "Content one",
+            owner: "6145dad42c8d8aefbceba6cb",
         },
         {
             _id: new ObjectId("612e273fd2455c204e6bcf7d"),
             title: "Title two",
-            content: "Content two"
+            content: "Content two",
+            owner: "6145dad42c8d8aefbceba6cb",
         }
     ];
 
+    const hash = await bcrypt.hash("password", 10);
+
+    const user = {
+        _id: new ObjectId("6145dad42c8d8aefbceba6cb"),
+        email: "testuser@example.com",
+        password: hash,
+    };
+
+    token = jwt.sign({ user: user }, "SUPERMEGASECRETTT");
+
     const db = await database.getDb();
 
-    await db.collection.deleteMany();
-    //await col.deleteMany();
-    await db.collection.insertMany(data);
+    await db.users.deleteMany();
+    await db.users.insertOne(user);
+    await db.documents.deleteMany();
+    await db.documents.insertMany(data);
 
     return db.client.close();
 });
@@ -32,6 +49,7 @@ describe("Test the root /documents", () => {
     test("It should response the GET method", () => {
         return request(app)
             .get("/documents")
+            .set('Authorization', 'bearer ' + token)
             .then(response => {
                 expect(response.statusCode).toBe(200);
                 expect(response.body).toHaveLength(2);
@@ -43,6 +61,7 @@ describe("Test unvalid PUT request, lacking content", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .put("/documents")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 title: "I am lacking content"
             })
@@ -56,6 +75,7 @@ describe("Test unvalid PUT request, lacking title", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .put("/documents")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 content: "I am lacking a title"
             })
@@ -69,6 +89,7 @@ describe("Test unvalid PUT request, lacking body", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .put("/documents")
+            .set('Authorization', 'bearer ' + token)
             .send({})
             .then(response => {
                 expect(response.statusCode).toBe(406);
@@ -80,6 +101,7 @@ describe("Test valid PUT request, lacking body", () => {
     test("It should response a 201 statuscode", () => {
         return request(app)
             .put("/documents")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 title: "A whole new title",
                 content: "A whole new content"
@@ -94,6 +116,7 @@ describe("Test unvalid POST request, lacking content", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .post("/documents/612e273fd2455c204e6bcf7c")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 title: "I am lacking content"
             })
@@ -107,6 +130,7 @@ describe("Test unvalid POST request, lacking title", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .post("/documents/612e273fd2455c204e6bcf7c")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 content: "I am lacking a title"
             })
@@ -120,6 +144,7 @@ describe("Test unvalid POST request, wrong id with valid format", () => {
     test("It should response a 400 statuscode", () => {
         return request(app)
             .post("/documents/not-valid-id")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 title: "I am a title.",
                 content: "I have content."
@@ -134,6 +159,7 @@ describe("Test unvalid POST request, wrong id with unvalid format", () => {
     test("It should response a 400 statuscode", () => {
         return request(app)
             .post("/documents/garbage")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 title: "I am a new title.",
                 content: "I have new content."
@@ -148,6 +174,7 @@ describe("Test valid POST request, ", () => {
     test("It should response a 202 statuscode", () => {
         return request(app)
             .post("/documents/612e273fd2455c204e6bcf7c")
+            .set('Authorization', 'bearer ' + token)
             .send({
                 title: "I am a new title.",
                 content: "I have new content."
@@ -162,6 +189,7 @@ describe("Test the unvalid /documents/:id with valid format", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .get("/documents/not-valid-id")
+            .set('Authorization', 'bearer ' + token)
             .then(response => {
                 expect(response.statusCode).toBe(406);
             });
@@ -172,6 +200,7 @@ describe("Test the unvalid /documents/:id with invalid format", () => {
     test("It should response a 406 statuscode", () => {
         return request(app)
             .get("/documents/garbage")
+            .set('Authorization', 'bearer ' + token)
             .then(response => {
                 expect(response.statusCode).toBe(406);
             });
@@ -182,6 +211,7 @@ describe("Test the valid  /documents/:id", () => {
     test("It should response a 200 statuscode", () => {
         return request(app)
             .get("/documents/612e273fd2455c204e6bcf7c")
+            .set('Authorization', 'bearer ' + token)
             .then(response => {
                 expect(response.statusCode).toBe(200);
                 expect(response.body).toMatchObject({
@@ -191,15 +221,3 @@ describe("Test the valid  /documents/:id", () => {
             });
     });
 });
-
-// afterEach(() => {
-//     clearTestDatabase();
-// });
-
-// test('city database has Vienna', () => {
-//     expect(isCity('Vienna')).toBeTruthy();
-// });
-
-// test('city database has San Juan', () => {
-//     expect(isCity('San Juan')).toBeTruthy();
-// });

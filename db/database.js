@@ -18,10 +18,12 @@ const database = {
             useUnifiedTopology: true,
         });
         const db = await client.db();
-        const collection = await db.collection(collectionName);
+        const documentCollection = await db.collection(collectionName);
+        const userCollection = await db.collection("users");
 
         return {
-            collection: collection,
+            documents: documentCollection,
+            users: userCollection,
             client: client,
         };
     }

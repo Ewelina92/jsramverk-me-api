@@ -1,7 +1,12 @@
 const express = require("express"); // web framework for Node.js
 const cors = require('cors'); // for others to access info from my api
 const morgan = require('morgan'); // for logging
+const passport = require('passport');
 const documents = require('./routes/documents');
+const permissions = require('./routes/permissions');
+const auth = require('./routes/auth');
+
+require('./auth/auth');
 
 const app = express();
 // const port = process.env.PORT || 1337;
@@ -18,8 +23,11 @@ if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined')); // 'combined' outputs the Apache style LOGs
 }
 
-// Routing from modules
-app.use('/documents', documents);
+// login and register
+app.use('/', auth);
+// protected document routes
+app.use('/permissions', passport.authenticate('jwt', { session: false }), permissions);
+app.use('/documents', passport.authenticate('jwt', { session: false }), documents);
 
 // Add routes for 404 and error handling
 // Catch 404 and forward to error handler

@@ -6,7 +6,20 @@ const database = require("../db/database");
 // list all documents: /documents
 router.get("/", async (req, res) => {
     const db = await database.getDb();
-    const resultSet = await db.collection.find({}).toArray();
+    const resultSet = await db.documents.find({
+        $or: [
+            {
+                owner: req.user._id
+            },
+            {
+                collaborators: {
+                    $in: [
+                        req.user._id,
+                    ],
+                }
+            },
+        ],
+    }).toArray();
 
     await db.client.close();
 
@@ -24,7 +37,27 @@ router.get("/:id", async (req, res) => {
         return;
     }
     const db = await database.getDb();
-    const resultSet = await db.collection.findOne({_id: objectID});
+    const resultSet = await db.documents.findOne({
+        $and: [
+            {
+                _id: objectID
+            },
+            {
+                $or: [
+                    {
+                        owner: req.user._id
+                    },
+                    {
+                        collaborators: {
+                            $in: [
+                                req.user._id,
+                            ],
+                        }
+                    },
+                ],
+            }
+        ]
+    });
 
     await db.client.close();
 
@@ -45,10 +78,11 @@ router.put("/", async (req, res) => {
     }
 
     const db = await database.getDb();
-    const resultSet = await db.collection.insertOne( // returns _id
+    const resultSet = await db.documents.insertOne( // returns _id
         {
             title: req.body.title,
             content: req.body.content,
+            owner: req.user._id,
         }
     );
 
@@ -78,15 +112,35 @@ router.post("/:id", async (req, res) => {
     }
 
     const db = await database.getDb();
-    const resultSet = await db.collection.updateOne({
-        _id: objectID
-    },
-    {
-        $set: {
-            title: req.body.title,
-            content: req.body.content
+    const resultSet = await db.documents.updateOne(
+        {
+            $and: [
+                {
+                    _id: objectID
+                },
+                {
+                    $or: [
+                        {
+                            owner: req.user._id
+                        },
+                        {
+                            collaborators: {
+                                $in: [
+                                    req.user._id,
+                                ],
+                            }
+                        },
+                    ],
+                }
+            ]
+        },
+        {
+            $set: {
+                title: req.body.title,
+                content: req.body.content
+            }
         }
-    });
+    );
 
     await db.client.close();
 
