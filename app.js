@@ -33,7 +33,7 @@ app.use('/permissions', passport.authenticate('jwt', { session: false }), permis
 app.use('/documents', passport.authenticate('jwt', { session: false }), documents);
 app.use('/graphql',
     passport.authenticate('jwt', { session: false }),
-    graphqlHTTP({ schema, rootValue, graphiql: true })
+    graphqlHTTP({ schema, rootValue })
 );
 
 // Add routes for 404 and error handling
