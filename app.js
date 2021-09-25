@@ -2,9 +2,12 @@ const express = require("express"); // web framework for Node.js
 const cors = require('cors'); // for others to access info from my api
 const morgan = require('morgan'); // for logging
 const passport = require('passport');
+const { graphqlHTTP } = require('express-graphql');
 const documents = require('./routes/documents');
 const permissions = require('./routes/permissions');
 const auth = require('./routes/auth');
+const schema = require('./schema');
+const { rootValue } = require('./resolvers');
 
 require('./auth/auth');
 
@@ -28,6 +31,10 @@ app.use('/', auth);
 // protected document routes
 app.use('/permissions', passport.authenticate('jwt', { session: false }), permissions);
 app.use('/documents', passport.authenticate('jwt', { session: false }), documents);
+app.use('/graphql',
+    passport.authenticate('jwt', { session: false }),
+    graphqlHTTP({ schema, rootValue, graphiql: true })
+);
 
 // Add routes for 404 and error handling
 // Catch 404 and forward to error handler

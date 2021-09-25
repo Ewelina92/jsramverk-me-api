@@ -98,8 +98,7 @@ router.put("/", async (req, res) => {
 // post /:id (update existing)
 router.post("/:id", async (req, res) => {
     if (!req?.body?.title || !req?.body?.content || !req?.params?.id) {
-        res.status(406).send();
-        return;
+        return res.status(406).send();
     }
 
     let objectID;
