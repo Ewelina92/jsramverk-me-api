@@ -24,7 +24,6 @@ const getAllDocuments = async (res, userId) => {
         }).toArray();
 
         return resultSet.map(doc => {
-            console.log(doc);
             return {
                 ...doc,
                 content: JSON.stringify(doc.content),
@@ -339,8 +338,6 @@ const removeCollaborator = async (res, userId, documentId, email) => {
     let db;
     let user;
 
-    console.log(userId, documentId, email);
-
     try {
         db = await database.getDb();
         user = await db.users.findOne({ email: email });
@@ -416,7 +413,6 @@ const removeCollaborator = async (res, userId, documentId, email) => {
     }
 
     if (resultSet.matchedCount !== 1) {
-        console.log("E");
         return res.status(400).send();
     }
 

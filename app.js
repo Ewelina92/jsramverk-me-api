@@ -6,6 +6,7 @@ const { graphqlHTTP } = require('express-graphql');
 const documents = require('./routes/documents');
 const permissions = require('./routes/permissions');
 const auth = require('./routes/auth');
+const pdf = require('./routes/pdf');
 const schema = require('./schema');
 const { rootValue } = require('./resolvers');
 
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 // login and register
 app.use('/', auth);
+app.use('/pdf', pdf);
 // protected document routes
 app.use('/permissions', passport.authenticate('jwt', { session: false }), permissions);
 app.use('/documents', passport.authenticate('jwt', { session: false }), documents);

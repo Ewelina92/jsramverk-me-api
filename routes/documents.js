@@ -88,8 +88,6 @@ router.put("/", async (req, res) => {
 
     await db.client.close();
 
-    console.log(resultSet.insertedId);
-
     res.status(201).json({
         documentID: resultSet.insertedId,
     });
