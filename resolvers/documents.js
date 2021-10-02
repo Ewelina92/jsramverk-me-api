@@ -27,6 +27,7 @@ const getAllDocuments = async (res, userId) => {
             return {
                 ...doc,
                 content: JSON.stringify(doc.content),
+                comments: JSON.stringify(resultSet.comments),
                 owner: async () => getUser(res, doc.owner),
                 collaborators: async () => {
                     if (!doc.collaborators) {
@@ -107,6 +108,7 @@ const getDocument = async (res, userId, id) => {
     return {
         ...resultSet,
         content: JSON.stringify(resultSet.content),
+        comments: JSON.stringify(resultSet.comments),
         owner: async () => getUser(res, resultSet.owner),
         collaborators: async () => {
             if (!resultSet.collaborators) {
@@ -118,7 +120,7 @@ const getDocument = async (res, userId, id) => {
     };
 };
 
-const updateDocument = async (res, userId, id, title, content) => {
+const updateDocument = async (res, userId, id, title, content, comments) => {
     if (!title || !content || !id) {
         return res.status(406).send();
     }
@@ -137,6 +139,17 @@ const updateDocument = async (res, userId, id, title, content) => {
     try {
         contentObj = JSON.parse(content);
     } catch (error) {
+        console.log("BB");
+        res.status(400).send();
+        return;
+    }
+
+    let commentArr;
+
+    try {
+        commentArr = JSON.parse(comments);
+    } catch (error) {
+        console.log("AA");
         res.status(400).send();
         return;
     }
@@ -171,7 +184,8 @@ const updateDocument = async (res, userId, id, title, content) => {
             {
                 $set: {
                     title: title,
-                    content: contentObj
+                    content: contentObj,
+                    comments: commentArr,
                 }
             }
         );
@@ -189,13 +203,14 @@ const updateDocument = async (res, userId, id, title, content) => {
     }
 
     if (resultSet.matchedCount !== 1) {
+        console.log("CC");
         return res.status(400).send();
     }
 
     return getDocument(res, userId, id);
 };
 
-const createDocument = async (res, userId, title, content) => {
+const createDocument = async (res, userId, title, content, comments) => {
     if (!title || !content) {
         return res.status(406).send();
     }
@@ -204,6 +219,15 @@ const createDocument = async (res, userId, title, content) => {
 
     try {
         contentObj = JSON.parse(content);
+    } catch (error) {
+        res.status(400).send();
+        return;
+    }
+
+    let commentArr;
+
+    try {
+        commentArr = JSON.parse(comments);
     } catch (error) {
         res.status(400).send();
         return;
@@ -219,6 +243,7 @@ const createDocument = async (res, userId, title, content) => {
                 title: title,
                 content: contentObj,
                 owner: userId,
+                comments: commentArr,
             }
         );
     } catch (e) {

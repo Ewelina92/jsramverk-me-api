@@ -19,6 +19,12 @@ io.on('connection', (socket) => {
 
         socket.to(room).emit("doc_content", delta);
     });
+
+    socket.on("new_comment", function (delta) {
+        const room = Array.from(socket.rooms)[1];
+
+        socket.to(room).emit("new_comment", delta);
+    });
 });
 
 const port = process.env.PORT || 1337;

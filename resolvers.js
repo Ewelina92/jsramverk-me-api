@@ -6,10 +6,10 @@ const queries = {
 };
 
 const mutations = {
-    updateDocument: async ({ _id, title, content }, args) =>
-        documents.updateDocument(args.res, args.user._id, _id, title, content),
-    createDocument: async ({ title, content }, args) =>
-        documents.createDocument(args.res, args.user._id, title, content),
+    updateDocument: async ({ _id, title, content, comments }, args) =>
+        documents.updateDocument(args.res, args.user._id, _id, title, content, comments),
+    createDocument: async ({ title, content, comments }, args) =>
+        documents.createDocument(args.res, args.user._id, title, content, comments),
     addCollaborator: async ({ documentId, email }, args) =>
         documents.addCollaborator(args.res, args.user._id, documentId, email),
     removeCollaborator: async ({ documentId, email }, args) =>
