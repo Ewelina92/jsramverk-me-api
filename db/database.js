@@ -1,7 +1,6 @@
 const mongo = require("mongodb").MongoClient;
 const { optionalRequire } = require("optional-require");
 const config = optionalRequire("./config.json", { require }) || {};
-const collectionName = "documents";
 
 const database = {
     getDb: async function getDb() {
@@ -18,12 +17,14 @@ const database = {
             useUnifiedTopology: true,
         });
         const db = await client.db();
-        const documentCollection = await db.collection(collectionName);
+        const documentCollection = await db.collection("documents");
         const userCollection = await db.collection("users");
+        const invitationCollection = await db.collection("invitations");
 
         return {
             documents: documentCollection,
             users: userCollection,
+            invitations: invitationCollection,
             client: client,
         };
     }

@@ -54,6 +54,29 @@ passport.use(
                 const userID = new ObjectId(resultSet.insertedId);
                 const user = await db.users.findOne({_id: userID});
 
+                const invitations = await db.invitations.find({email: email}).toArray();
+
+                for (const invitation of invitations) {
+                    const docID = new ObjectId(invitation.documentId);
+
+                    await db.documents.updateOne(
+                        {
+                            _id: docID,
+                        },
+                        {
+                            $addToSet: {
+                                collaborators: `${resultSet.insertedId}`,
+                            }
+                        }
+                    );
+
+                    await db.invitations.deleteOne(
+                        {
+                            _id: invitation._id,
+                        }
+                    );
+                }
+
                 await db.client.close();
 
                 return done(null, user);

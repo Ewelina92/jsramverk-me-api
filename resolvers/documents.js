@@ -1,4 +1,8 @@
 const ObjectId = require('mongodb').ObjectId;
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const database = require("../db/database.js");
 const { getUser } = require("./users");
 
@@ -291,7 +295,34 @@ const addCollaborator = async (res, userId, documentId, email) => {
     }
 
     if (!user) {
-        return res.status(400).send();
+        const msg = {
+            to: email,
+            from: 'ewelina.van.rantwijk@outlook.com',
+            subject: 'Collaborate on Ewelina Editor!',
+            html: '<p>You are invited to collaborate on a document. '
+                +'</p><p><br></p><p>Click the link below to accept the invitation '
+                +'and sign up!</p><p><br></p><p><a href="https://www.student.'
+                +'bth.se/~eaja20/editor" target="_blank">'
+                +'https://www.student.bth.se/~eaja20/editor</a></p>',
+        };
+
+        try {
+            db = await database.getDb();
+
+            await sgMail.send(msg);
+            await db.invitations.insertOne(
+                {
+                    documentId: documentId,
+                    email: email,
+                }
+            );
+            return getDocument(res, userId, documentId);
+        } catch (error) {
+            console.error(error);
+            return res.status(400).send();
+        } finally {
+            await db.client.close();
+        }
     }
 
     let objectID;
@@ -299,6 +330,7 @@ const addCollaborator = async (res, userId, documentId, email) => {
     try {
         objectID = new ObjectId(documentId);
     } catch {
+        console.log("QQQ");
         return res.status(400).json({});
     }
 
@@ -349,6 +381,7 @@ const addCollaborator = async (res, userId, documentId, email) => {
     }
 
     if (resultSet.matchedCount !== 1) {
+        console.log("BBB");
         return res.status(400).send();
     }
 
