@@ -28,9 +28,17 @@ const getAllDocuments = async (res, userId) => {
         }).toArray();
 
         return resultSet.map(doc => {
+            let contentToSend;
+
+            if (doc?.kind == "code") {
+                contentToSend = doc.content;
+            } else {
+                contentToSend = JSON.stringify(doc.content);
+            }
             return {
                 ...doc,
-                content: JSON.stringify(doc.content),
+                kind: doc.kind || "Document",
+                content: contentToSend,
                 comments: JSON.stringify(resultSet.comments),
                 owner: async () => getUser(res, doc.owner),
                 collaborators: async () => {
@@ -109,9 +117,18 @@ const getDocument = async (res, userId, id) => {
         return res.status(406).send();
     }
 
+    let contentToSend;
+
+    if (resultSet?.kind == "Code") {
+        contentToSend = resultSet.content;
+    } else {
+        contentToSend = JSON.stringify(resultSet.content);
+    }
+
     return {
         ...resultSet,
-        content: JSON.stringify(resultSet.content),
+        kind: resultSet.kind || "Document",
+        content: contentToSend,
         comments: JSON.stringify(resultSet.comments),
         owner: async () => getUser(res, resultSet.owner),
         collaborators: async () => {
@@ -124,9 +141,13 @@ const getDocument = async (res, userId, id) => {
     };
 };
 
-const updateDocument = async (res, userId, id, title, content, comments) => {
+const updateDocument = async (res, userId, id, title, content, comments, kind) => {
     if (!title || !content || !id) {
         return res.status(406).send();
+    }
+
+    if (!kind) {
+        kind = "Document";
     }
 
     let objectID;
@@ -140,13 +161,18 @@ const updateDocument = async (res, userId, id, title, content, comments) => {
 
     let contentObj;
 
-    try {
-        contentObj = JSON.parse(content);
-    } catch (error) {
-        console.log("BB");
-        res.status(400).send();
-        return;
+    if (kind == "Code") {
+        contentObj = content;
+    } else {
+        try {
+            contentObj = JSON.parse(content);
+        } catch (error) {
+            console.log("BB");
+            res.status(400).send();
+            return;
+        }
     }
+
 
     let commentArr;
 
@@ -190,6 +216,7 @@ const updateDocument = async (res, userId, id, title, content, comments) => {
                     title: title,
                     content: contentObj,
                     comments: commentArr,
+                    kind: kind,
                 }
             }
         );
@@ -214,18 +241,28 @@ const updateDocument = async (res, userId, id, title, content, comments) => {
     return getDocument(res, userId, id);
 };
 
-const createDocument = async (res, userId, title, content, comments) => {
+const createDocument = async (res, userId, title, content, comments, kind) => {
+    console.log("create", kind, content);
     if (!title || !content) {
         return res.status(406).send();
     }
 
+    if (!kind) {
+        console.log("kind", kind);
+        kind = "Document";
+    }
+
     let contentObj;
 
-    try {
-        contentObj = JSON.parse(content);
-    } catch (error) {
-        res.status(400).send();
-        return;
+    if (kind == "Code") {
+        contentObj = content;
+    } else {
+        try {
+            contentObj = JSON.parse(content);
+        } catch (error) {
+            res.status(400).send();
+            return;
+        }
     }
 
     let commentArr;
@@ -246,6 +283,7 @@ const createDocument = async (res, userId, title, content, comments) => {
             {
                 title: title,
                 content: contentObj,
+                kind: kind,
                 owner: userId,
                 comments: commentArr,
             }

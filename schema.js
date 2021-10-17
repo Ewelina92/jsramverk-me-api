@@ -8,8 +8,14 @@ const schema = buildASTSchema(gql`
   }
 
   type Mutation {
-    updateDocument(_id: String!, title: String!, content: String!, comments: String): Document
-    createDocument(title: String!, content: String!, comments: String): Document
+    updateDocument(
+      _id: String!,
+      title: String!,
+      content: String!,
+      comments: String,
+      kind: String
+    ): Document
+    createDocument(title: String!, content: String!, comments: String, kind: String): Document
     addCollaborator(documentId: String!, email: String!): Document
     removeCollaborator(documentId: String!, email: String!): Document
   }
@@ -21,7 +27,7 @@ const schema = buildASTSchema(gql`
     owner: User
     collaborators: [User]
     comments: String
-    type: String
+    kind: String
   }
 
   type User {
