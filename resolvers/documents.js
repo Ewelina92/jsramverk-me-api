@@ -30,7 +30,7 @@ const getAllDocuments = async (res, userId) => {
         return resultSet.map(doc => {
             let contentToSend;
 
-            if (doc?.kind == "code") {
+            if (doc?.kind == "Code") {
                 contentToSend = doc.content;
             } else {
                 contentToSend = JSON.stringify(doc.content);
@@ -51,6 +51,7 @@ const getAllDocuments = async (res, userId) => {
             };
         });
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -101,6 +102,7 @@ const getDocument = async (res, userId, id) => {
             ]
         });
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -167,7 +169,6 @@ const updateDocument = async (res, userId, id, title, content, comments, kind) =
         try {
             contentObj = JSON.parse(content);
         } catch (error) {
-            console.log("BB");
             res.status(400).send();
             return;
         }
@@ -179,7 +180,6 @@ const updateDocument = async (res, userId, id, title, content, comments, kind) =
     try {
         commentArr = JSON.parse(comments);
     } catch (error) {
-        console.log("AA");
         res.status(400).send();
         return;
     }
@@ -221,6 +221,7 @@ const updateDocument = async (res, userId, id, title, content, comments, kind) =
             }
         );
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -233,8 +234,8 @@ const updateDocument = async (res, userId, id, title, content, comments, kind) =
         await db.client.close();
     }
 
+    /* istanbul ignore if */
     if (resultSet.matchedCount !== 1) {
-        console.log("CC");
         return res.status(400).send();
     }
 
@@ -242,13 +243,11 @@ const updateDocument = async (res, userId, id, title, content, comments, kind) =
 };
 
 const createDocument = async (res, userId, title, content, comments, kind) => {
-    console.log("create", kind, content);
     if (!title || !content) {
         return res.status(406).send();
     }
 
     if (!kind) {
-        console.log("kind", kind);
         kind = "Document";
     }
 
@@ -289,6 +288,7 @@ const createDocument = async (res, userId, title, content, comments, kind) => {
             }
         );
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -301,6 +301,7 @@ const createDocument = async (res, userId, title, content, comments, kind) => {
         await db.client.close();
     }
 
+    /* istanbul ignore if */
     if (!resultSet.insertedId) {
         return res.status(500).send();
     }
@@ -320,6 +321,7 @@ const addCollaborator = async (res, userId, documentId, email) => {
         db = await database.getDb();
         user = await db.users.findOne({ email: email });
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -346,8 +348,10 @@ const addCollaborator = async (res, userId, documentId, email) => {
 
         try {
             db = await database.getDb();
-
-            await sgMail.send(msg);
+            /* istanbul ignore if */
+            if (process.env.NODE_ENV != 'test') {
+                await sgMail.send(msg);
+            }
             await db.invitations.insertOne(
                 {
                     documentId: documentId,
@@ -356,7 +360,9 @@ const addCollaborator = async (res, userId, documentId, email) => {
             );
             return getDocument(res, userId, documentId);
         } catch (error) {
+            /* istanbul ignore next */
             console.error(error);
+            /* istanbul ignore next */
             return res.status(400).send();
         } finally {
             await db.client.close();
@@ -368,7 +374,6 @@ const addCollaborator = async (res, userId, documentId, email) => {
     try {
         objectID = new ObjectId(documentId);
     } catch {
-        console.log("QQQ");
         return res.status(400).json({});
     }
 
@@ -406,6 +411,7 @@ const addCollaborator = async (res, userId, documentId, email) => {
             }
         );
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -418,8 +424,8 @@ const addCollaborator = async (res, userId, documentId, email) => {
         await db.client.close();
     }
 
+    /* istanbul ignore if */
     if (resultSet.matchedCount !== 1) {
-        console.log("BBB");
         return res.status(400).send();
     }
 
@@ -438,6 +444,7 @@ const removeCollaborator = async (res, userId, documentId, email) => {
         db = await database.getDb();
         user = await db.users.findOne({ email: email });
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -496,6 +503,7 @@ const removeCollaborator = async (res, userId, documentId, email) => {
             }
         );
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -508,6 +516,7 @@ const removeCollaborator = async (res, userId, documentId, email) => {
         await db.client.close();
     }
 
+    /* istanbul ignore if */
     if (resultSet.matchedCount !== 1) {
         return res.status(400).send();
     }

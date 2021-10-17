@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const passport = require('passport');
 const localStrategy = require('passport-local').Strategy;
 const JWTstrategy = require('passport-jwt').Strategy;

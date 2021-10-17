@@ -8,8 +8,9 @@ router.post("/", (req, res) => {
     }
 
     pdf.create(req.body.html).toStream((err, pdfStream) => {
+        /* istanbul ignore if */
         if (err) {
-            console.err(err);
+            console.error(err);
             return res.sendStatus(500);
         } else {
             pdfStream.on("end", () => {

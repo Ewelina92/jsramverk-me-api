@@ -22,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // don't show the log when it is test
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
     // use morgan to log at command line
     app.use(morgan('combined')); // 'combined' outputs the Apache style LOGs
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 });
 
 // custom made error-handling
+/* istanbul ignore next */
 app.use((err, req, res, next) => {
     if (res.headersSent) {
         return next(err);

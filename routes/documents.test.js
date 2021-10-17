@@ -15,12 +15,14 @@ beforeEach(async () => {
             _id: new ObjectId("612e273fd2455c204e6bcf7c"),
             title: "Title one",
             content: "Content one",
+            kind: "Document",
             owner: "6145dad42c8d8aefbceba6cb",
         },
         {
             _id: new ObjectId("612e273fd2455c204e6bcf7d"),
             title: "Title two",
-            content: "Content two",
+            kind: "Code",
+            content: "// content two",
             owner: "6145dad42c8d8aefbceba6cb",
         }
     ];
@@ -43,6 +45,18 @@ beforeEach(async () => {
     await db.documents.insertMany(data);
 
     return db.client.close();
+});
+
+describe("Test the root /documents", () => {
+    test("It should response the GET method", () => {
+        return request(app)
+            .get("/documents")
+            .set('Authorization', 'bearer ' + token)
+            .then(response => {
+                expect(response.statusCode).toBe(200);
+                expect(response.body).toHaveLength(2);
+            });
+    });
 });
 
 describe("Test the root /documents", () => {

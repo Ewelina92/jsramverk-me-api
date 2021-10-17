@@ -8,6 +8,7 @@ const getUser = async (res, id) => {
     try {
         objectID = new ObjectId(id);
     } catch (error) {
+        /* istanbul ignore next */
         return res.status(406).send();
     }
 
@@ -20,6 +21,7 @@ const getUser = async (res, id) => {
             _id: objectID
         });
     } catch (e) {
+        /* istanbul ignore next */
         return res.status(500).json({
             errors: {
                 status: 500,
@@ -32,10 +34,12 @@ const getUser = async (res, id) => {
         await db.client.close();
     }
 
+    /* istanbul ignore if */
     if (!resultSet) {
         return res.status(406).send();
     }
 
+    /* istanbul ignore next */
     return {
         ...resultSet,
         documents: async ( id ) => getAllDocuments(res, id),

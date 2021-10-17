@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 var express = require('express');
 const ObjectId = require('mongodb').ObjectId;
 var router = express.Router();

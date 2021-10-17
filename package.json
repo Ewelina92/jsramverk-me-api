@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest --runInBand --coverage",
     "start": ". ./sendgrid.env && nodemon server.js",
     "production": "NODE_ENV='production' node server.js",
     "eslint": "eslint ."

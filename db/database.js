@@ -1,5 +1,6 @@
 const mongo = require("mongodb").MongoClient;
 const { optionalRequire } = require("optional-require");
+/* istanbul ignore next */
 const config = optionalRequire("./config.json", { require }) || {};
 
 const database = {
@@ -8,6 +9,7 @@ const database = {
         `/dev?retryWrites=true&w=majority`;
         // let dsn = `mongodb://localhost:27017/mumin`;
 
+        /* istanbul ignore next */
         if (process.env.NODE_ENV === 'test') {
             dsn = "mongodb://localhost:27017/test";
         }
