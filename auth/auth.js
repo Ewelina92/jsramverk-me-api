@@ -33,7 +33,6 @@ passport.use(
         },
         async (email, password, done) => {
             try {
-                // create new user in database
                 const db = await database.getDb();
 
                 // check if email already exists
@@ -55,11 +54,13 @@ passport.use(
                 const userID = new ObjectId(resultSet.insertedId);
                 const user = await db.users.findOne({_id: userID});
 
+                // get all invitations for this email
                 const invitations = await db.invitations.find({email: email}).toArray();
 
                 for (const invitation of invitations) {
                     const docID = new ObjectId(invitation.documentId);
 
+                    // add this user as collaborator
                     await db.documents.updateOne(
                         {
                             _id: docID,
@@ -71,6 +72,7 @@ passport.use(
                         }
                     );
 
+                    // delete invitation
                     await db.invitations.deleteOne(
                         {
                             _id: invitation._id,

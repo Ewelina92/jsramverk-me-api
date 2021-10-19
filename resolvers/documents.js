@@ -317,6 +317,7 @@ const addCollaborator = async (res, userId, documentId, email) => {
     let db;
     let user;
 
+    // try to get the user with email
     try {
         db = await database.getDb();
         user = await db.users.findOne({ email: email });
@@ -334,6 +335,7 @@ const addCollaborator = async (res, userId, documentId, email) => {
         await db.client.close();
     }
 
+    // if this user does not exist
     if (!user) {
         const msg = {
             to: email,
@@ -350,8 +352,10 @@ const addCollaborator = async (res, userId, documentId, email) => {
             db = await database.getDb();
             /* istanbul ignore if */
             if (process.env.NODE_ENV != 'test') {
+                // send invitation email
                 await sgMail.send(msg);
             }
+            // insert invitation to document for this email
             await db.invitations.insertOne(
                 {
                     documentId: documentId,
